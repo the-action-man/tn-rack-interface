@@ -1,5 +1,5 @@
 class App
-  START_SYMBOL_OF_QUERY_VALUE = 7
+  START_SYMBOL_OF_QUERY_VALUE = 7.freeze
   AVAILABLE_TIME_UNITS =
     {
       "year" => "Y",
@@ -35,12 +35,12 @@ class App
       return [400, headers, ["Time format is absent"]]
     end
 
-    value = query[START_SYMBOL_OF_QUERY_VALUE..]
-    time_units = value.split("%2C")
+    query_value = query[START_SYMBOL_OF_QUERY_VALUE..]
+    time_units = query_value.split(/%../)
     error_response = validate_time_units(time_units)
     return error_response if error_response
 
-    formatted_time(time_units)
+    formatted_time(query_value)
   end
 
   def validate_time_units(units)
@@ -53,15 +53,40 @@ class App
     [400, headers, ["Unknown time format #{unknown_formats}"]]
   end
 
-  def formatted_time(units)
-    format = ruby_format_string(units)
+  def formatted_time(query_value)
+    abnormal_format = split_to_abnormal_format(query_value)
+    format = ruby_format_string(abnormal_format)
     [200, headers, [Time.now.strftime(format)]]
   end
 
-  def ruby_format_string(units)
+  def split_to_abnormal_format(query_value)
+    str = query_value
+    format = []
+
+    loop do
+      index = str.index("%")
+      unless index
+        format << str
+        break
+      end
+
+      format << str[0..index - 1]
+      str = str[index..]
+
+      format << str[0..2]
+      str = str[3..]
+    end
+    format
+  end
+
+  def ruby_format_string(abnormal_format)
     format = ""
-    units.each do |unit|
-      format << "%#{AVAILABLE_TIME_UNITS[unit]}-"
+    abnormal_format.each do |item|
+      if item.start_with?("%")
+        format << URI.unescape(item)
+      else
+        format << "%#{AVAILABLE_TIME_UNITS[item]}"
+      end
     end
     format
   end
