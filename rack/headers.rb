@@ -1,4 +1,3 @@
-# require 'headers'
 
 class Headers
   HEADERS = { 'Content-Type' => 'text/plain' }.freeze

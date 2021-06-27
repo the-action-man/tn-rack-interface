@@ -1,7 +1,6 @@
-# require 'time'
-# require 'headers'
+require_relative 'headers'
 
-class Time
+class CurrentTime
   START_SYMBOL_OF_QUERY_VALUE = 7.freeze
   AVAILABLE_TIME_UNITS =
     {
@@ -14,7 +13,6 @@ class Time
     }.freeze
 
   def initialize(query)
-    puts "111111111"
     @query = query
   end
 

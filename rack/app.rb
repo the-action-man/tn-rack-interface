@@ -1,8 +1,5 @@
-# require_relative 'time'
-# require_relative 'headers'
-
-# require 'time'
-# require 'headers'
+require_relative 'current_time'
+require_relative 'headers'
 
 class App
   def call(env)
@@ -13,7 +10,7 @@ class App
 
   def route(env)
     req = Rack::Request.new(env)
-    time = Time.new(req.query_string)
+    time = CurrentTime.new(req.query_string)
 
     return time.call if req.path == ("/time") && req.get?
 
