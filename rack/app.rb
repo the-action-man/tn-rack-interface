@@ -1,15 +1,10 @@
-class App
-  START_SYMBOL_OF_QUERY_VALUE = 7.freeze
-  AVAILABLE_TIME_UNITS =
-    {
-      "year" => "Y",
-      "month" => "m",
-      "day" => "d",
-      "hour" => "H",
-      "minute" => "M",
-      "second" => "S",
-    }.freeze
+# require_relative 'time'
+# require_relative 'headers'
 
+# require 'time'
+# require 'headers'
+
+class App
   def call(env)
     route(env)
   end
@@ -17,77 +12,16 @@ class App
   private
 
   def route(env)
-    if env["REQUEST_PATH"] == ("/time") && env["REQUEST_METHOD"] == "GET"
-      return time(env["QUERY_STRING"])
-    end
+    req = Rack::Request.new(env)
+    time = Time.new(req.query_string)
 
-    [404, headers, ["oops"]]
+    return time.call if req.path == ("/time") && req.get?
+
+    Rack::Response.new(["oops"], 404, headers).finish
   end
 
   def headers
-    { 'Content-Type' => 'text/plain' }
-  end
-
-  def time(query)
-    if query.empty? ||
-      !query.start_with?("format=") ||
-      query[START_SYMBOL_OF_QUERY_VALUE..].empty?
-      return [400, headers, ["Time format is absent"]]
-    end
-
-    query_value = query[START_SYMBOL_OF_QUERY_VALUE..]
-    time_units = query_value.split(/%../)
-    error_response = validate_time_units(time_units)
-    return error_response if error_response
-
-    formatted_time(query_value)
-  end
-
-  def validate_time_units(units)
-    unknown_formats = []
-    units.each do |unit|
-      unknown_formats << unit unless AVAILABLE_TIME_UNITS.keys.include?(unit)
-    end
-    return if unknown_formats.empty?
-
-    [400, headers, ["Unknown time format #{unknown_formats}"]]
-  end
-
-  def formatted_time(query_value)
-    abnormal_format = split_to_abnormal_format(query_value)
-    format = ruby_format_string(abnormal_format)
-    [200, headers, [Time.now.strftime(format)]]
-  end
-
-  def split_to_abnormal_format(query_value)
-    str = query_value
-    format = []
-
-    loop do
-      index = str.index("%")
-      unless index
-        format << str
-        break
-      end
-
-      format << str[0..index - 1]
-      str = str[index..]
-
-      format << str[0..2]
-      str = str[3..]
-    end
-    format
-  end
-
-  def ruby_format_string(abnormal_format)
-    format = ""
-    abnormal_format.each do |item|
-      if item.start_with?("%")
-        format << URI.unescape(item)
-      else
-        format << "%#{AVAILABLE_TIME_UNITS[item]}"
-      end
-    end
-    format
+    # { 'Content-Type' => 'text/plain' }
+    Headers::HEADERS
   end
 end
