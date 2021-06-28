@@ -46,15 +46,13 @@ class TimeUtil
   end
 
   def ruby_format_string(abnormal_format)
-    format = ""
-    abnormal_format.each do |item|
+    abnormal_format.map do |item|
       if item.start_with?("%")
-        format << URI.unescape(item)
+        URI.unescape(item)
       else
-        format << "%#{AVAILABLE_TIME_UNITS[item]}"
+        "%#{AVAILABLE_TIME_UNITS[item]}"
       end
-    end
-    format
+    end.join("")
   end
 end
 
