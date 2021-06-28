@@ -20,29 +20,40 @@ class TimeUtil
   end
 
   def formatted_time(query_value)
-    abnormal_format = split_to_abnormal_format(query_value)
-    format = ruby_format_string(abnormal_format)
+    array_format = split_to_array_format(query_value)
+    format = ruby_format_string(array_format)
     Time.now.strftime(format)
   end
 
-  def split_to_abnormal_format(query_value)
-    str = query_value
-    format = []
+  def split_to_array_format(query_value)
+    @str = query_value
+    @format = []
+    collect_array_format
+    @format
+  end
 
-    loop do
-      index = str.index("%")
-      unless index
-        format << str
-        break
-      end
-
-      format << str[0..index - 1]
-      str = str[index..]
-
-      format << str[0..2]
-      str = str[3..]
+  def collect_array_format
+    unit_separator_index = find_unit_separator_index
+    while unit_separator_index do
+      add_unit_before_separator(unit_separator_index)
+      add_unit_separator
+      unit_separator_index = find_unit_separator_index
     end
-    format
+    @format << @str
+  end
+
+  def find_unit_separator_index
+    @str.index("%")
+  end
+
+  def add_unit_before_separator(index)
+    @format << @str[0..index - 1]
+    @str = @str[index..]
+  end
+
+  def add_unit_separator
+    @format << @str[0..2]
+    @str = @str[3..]
   end
 
   def ruby_format_string(abnormal_format)
