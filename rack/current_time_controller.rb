@@ -1,7 +1,7 @@
 require_relative 'time_util'
 
 class CurrentTimeController
-  START_SYMBOL_OF_QUERY_VALUE = 7.freeze
+  START_SYMBOL_OF_QUERY_VALUE = 7
 
   def initialize(query)
     @query = query
