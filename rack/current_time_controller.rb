@@ -1,6 +1,4 @@
-require_relative 'headers'
-
-class CurrentTime
+class CurrentTimeController
   START_SYMBOL_OF_QUERY_VALUE = 7.freeze
   AVAILABLE_TIME_UNITS =
     {
@@ -22,10 +20,6 @@ class CurrentTime
 
   private
 
-  def headers
-    Headers::HEADERS
-  end
-
 
   def query
     @query
@@ -35,7 +29,7 @@ class CurrentTime
     if query.empty? ||
       !query.start_with?("format=") ||
       query[START_SYMBOL_OF_QUERY_VALUE..].empty?
-      return [400, headers, ["Time format is absent"]]
+      return [400, {}, ["Time format is absent"]]
     end
 
     query_value = query[START_SYMBOL_OF_QUERY_VALUE..]
@@ -53,13 +47,13 @@ class CurrentTime
     end
     return if unknown_formats.empty?
 
-    [400, headers, ["Unknown time format #{unknown_formats}"]]
+    [400, {}, ["Unknown time format #{unknown_formats}"]]
   end
 
   def formatted_time(query_value)
     abnormal_format = split_to_abnormal_format(query_value)
     format = ruby_format_string(abnormal_format)
-    [200, headers, [Time.now.strftime(format)]]
+    [200, {}, [Time.now.strftime(format)]]
   end
 
   def split_to_abnormal_format(query_value)

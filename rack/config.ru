@@ -1,3 +1,10 @@
 require_relative 'app'
 
-run App.new
+app = Rack::Builder.new do
+  use Rack::ContentType, "text/plain"
+  map "/time" do
+    run App.new
+  end
+end
+
+run app
