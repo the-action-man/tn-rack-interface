@@ -12,10 +12,7 @@ class TimeUtil
     }.freeze
 
   def validate_time_units(units)
-    unknown_formats = []
-    units.each do |unit|
-      unknown_formats << unit unless AVAILABLE_TIME_UNITS.keys.include?(unit)
-    end
+    unknown_formats = units.reject { AVAILABLE_TIME_UNITS.keys.include?(_1) }
     return if unknown_formats.empty?
 
     "Unknown time format #{unknown_formats}"
@@ -37,5 +34,3 @@ class TimeUtil
     end.join("")
   end
 end
-
-
